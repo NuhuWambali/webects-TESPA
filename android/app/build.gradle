@@ -1,0 +1,154 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '2'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '2.0'
+}
+
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace "com.webcorp.ects"
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId "com.webcorp.ects"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+//        minSdkVersion 24
+        minSdkVersion 24
+        ndkVersion "25.1.8937393"
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+
+
+        sign {
+            storeFile file('../app/sunmi.keystore')
+            storePassword "sunmi388"
+            keyAlias "Sunmi"
+            keyPassword "sunmi388"
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+
+
+        signvfd {
+            storeFile file('../app/webvfd_pos_printer_public_key.jks')
+            storePassword "WebVFD"
+            keyAlias "key_alias"
+            keyPassword "WebVFD"
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+
+
+    }
+    buildTypes {
+        release {
+         //PWD signingConfig signingConfigs.release
+            signingConfig signingConfigs.signvfd
+//          signingConfig signingConfigs.sign
+            minifyEnabled true
+            shrinkResources true
+//            useProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+//    buildTypes {
+//        release {
+//            // TODO: Add your own signing config for the release build.
+//            // Signing with the debug keys for now, so `flutter run --release` works.
+//            signingConfig signingConfigs.debug
+//        }
+//    }
+//
+//    repositories {
+//        flatDir {
+//            dirs 'libs'
+//        }
+//
+//
+//    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    configurations {
+        all*.exclude group: 'com.google.zxing'
+    }
+
+}
+
+flutter {
+    source '../..'
+}
+
+
+dependencies {
+
+    implementation 'com.google.android.material:material:1.7.0-beta01'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.core:core:1.8.0'
+//    implementation "com.sunmi:sunmiui:1.1.27"
+    implementation('com.journeyapps:zxing-android-embedded:4.3.0') { transitive = false }
+    implementation 'com.google.zxing:core:3.5.0'
+    implementation files('libs/cloudpossdkV1.5.3.077_Standard.aar')
+    implementation files('libs/core-3.3.0.jar')
+    implementation files('libs/javase-3.3.0.jar')
+    implementation files('libs/PalmPayUSDKLib-debug-v1.0.23.aar')
+
+    implementation files('libs/telpo/telpoLib_v2.5.20230417.aar') //telpo
+//    implementation ('com.journeyapps:zxing-android-embedded:3.6.0') { transitive false }
+
+
+
+
+
+}
+
+
+
